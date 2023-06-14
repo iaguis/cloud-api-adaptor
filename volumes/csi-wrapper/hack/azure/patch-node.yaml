@@ -27,7 +27,7 @@ spec:
           env:
             - name: ADDRESS
               value: /csi/csi-node-wrapper.sock
-            - name: DRIVER_REGISTRATION_SOCK
+            - name: DRIVER_REG_SOCK_PATH
               value: /var/lib/kubelet/plugins/file.csi.azure.com/csi-node-wrapper.sock
 
       volumes:

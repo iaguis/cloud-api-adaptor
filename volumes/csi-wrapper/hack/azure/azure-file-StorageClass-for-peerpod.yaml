@@ -5,6 +5,7 @@ metadata:
 provisioner: file.csi.azure.com
 parameters:
   skuName: Standard_LRS
+  peerpod: "true"
 reclaimPolicy: Delete
 volumeBindingMode: Immediate
 mountOptions:

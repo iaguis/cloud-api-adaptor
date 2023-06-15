@@ -4,7 +4,7 @@ spec:
       containers:
         - name: csi-controller-wrapper
           args:
-            - -v=2
+            - -v=5
             - --endpoint=/csi/csi-controller-wrapper.sock
             - --target-endpoint=/csi/csi.sock
             - --namespace=kube-system
@@ -16,7 +16,7 @@ spec:
 
         - name: csi-attacher
           args:
-            - -v=2
+            - -v=5
             - --csi-address=/csi/csi-controller-wrapper.sock
             - --timeout=900s
 

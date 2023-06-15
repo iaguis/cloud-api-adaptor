@@ -79,7 +79,7 @@ func (s *ControllerService) CreateVolume(ctx context.Context, req *csi.CreateVol
 
 		volumeName := req.Name
 		res, err = client.CreateVolume(ctx, req)
-		glog.Infof("Created volume response: %s\n", res)
+		glog.Infof("Created volume response: %s: error: %v\n", res, err)
 
 		// Create PeerpodVolume CRD object only when peerpod parameter is found in request
 		if peerpod != "" {

@@ -84,17 +84,19 @@ func (s *ControllerService) CreateVolume(ctx context.Context, req *csi.CreateVol
 		// Create PeerpodVolume CRD object only when peerpod parameter is found in request
 		if peerpod != "" {
 			volumeID := res.GetVolume().VolumeId
+			sanitizedVolumeID := strings.ReplaceAll(volumeID, "###", ".")
+			sanitizedVolumeID = strings.ReplaceAll(sanitizedVolumeID, "#", ".")
 			labels := map[string]string{
 				"volumeName": volumeName,
 			}
 			newPeerpodvolume := &v1alpha1.PeerpodVolume{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      volumeID,
+					Name:      sanitizedVolumeID,
 					Namespace: s.Namespace,
 					Labels:    labels,
 				},
 				Spec: v1alpha1.PeerpodVolumeSpec{
-					VolumeID:   volumeID,
+					VolumeID:   sanitizedVolumeID,
 					VolumeName: volumeName,
 				},
 			}

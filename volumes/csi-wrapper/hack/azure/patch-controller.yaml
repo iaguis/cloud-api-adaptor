@@ -8,8 +8,8 @@ spec:
             - --endpoint=/csi/csi-controller-wrapper.sock
             - --target-endpoint=/csi/csi.sock
             - --namespace=kube-system
-          image: quay.io/confidential-containers/csi-controller-wrapper:latest
-          imagePullPolicy: IfNotPresent
+          image: quay.io/iaguis/csi-controller-wrapper:latest
+          imagePullPolicy: Always
           volumeMounts:
             - mountPath: /csi
               name: socket-dir

@@ -367,7 +367,7 @@ func (s *NodeService) SyncHandler(peerPodVolume *peerpodvolumeV1alpha1.PeerpodVo
 			vmID := res.VMID
 			glog.Infof("Got the vm instance id from cloud-api-adaptor podVMInfoService vmID:%v", vmID)
 			peerPodVolume.Spec.VMID = vmID
-			peerPodVolume.Labels["vmID"] = vmID
+			peerPodVolume.Labels["vmID"] = utils.NormalizeVMID(vmID)
 			updatedPeerPodVolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Update(context.Background(), peerPodVolume, metav1.UpdateOptions{})
 			if err != nil {
 				glog.Errorf("Error happens while Update vmID to PeerpodVolume, err: %v", err.Error())

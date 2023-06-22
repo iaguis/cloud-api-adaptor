@@ -49,3 +49,8 @@ func NormalizeVolumeID(volumeID string) string {
 
 	return sanitizedVolumeID
 }
+
+func NormalizeVMID(vmID string) string {
+	split := strings.Split(vmID, "/")
+	return split[len(split)-1]
+}

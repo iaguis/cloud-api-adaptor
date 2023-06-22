@@ -13,8 +13,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-          image: quay.io/confidential-containers/csi-node-wrapper:latest
-          imagePullPolicy: IfNotPresent
+          image: quay.io/iaguis/csi-node-wrapper:latest
+          imagePullPolicy: Always
           volumeMounts:
             - mountPath: /csi
               name: socket-dir

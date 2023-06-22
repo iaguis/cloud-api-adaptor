@@ -42,3 +42,10 @@ func Listen(endpoint string) (net.Listener, func(), error) {
 	l, err := net.Listen(proto, addr)
 	return l, cleanup, err
 }
+
+func NormalizeVolumeID(volumeID string) string {
+	sanitizedVolumeID := strings.ReplaceAll(volumeID, "###", ".")
+	sanitizedVolumeID = strings.ReplaceAll(sanitizedVolumeID, "#", ".")
+
+	return sanitizedVolumeID
+}

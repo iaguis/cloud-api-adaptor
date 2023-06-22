@@ -15,6 +15,7 @@ import (
 	"github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/apis/peerpodvolume/v1alpha1"
 	peerpodvolumeV1alpha1 "github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/apis/peerpodvolume/v1alpha1"
 	peerpodvolume "github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/generated/peerpodvolume/clientset/versioned"
+	"github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/utils"
 	"github.com/containerd/ttrpc"
 	volume "github.com/kata-containers/kata-containers/src/runtime/pkg/direct-volume"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -90,7 +91,7 @@ func (s *NodeService) getPodUIDandVolumeName(targetPath string) (podUid, volumeN
 }
 
 func (s *NodeService) NodePublishVolume(ctx context.Context, req *csi.NodePublishVolumeRequest) (res *csi.NodePublishVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())
@@ -152,7 +153,7 @@ func (s *NodeService) NodePublishVolume(ctx context.Context, req *csi.NodePublis
 }
 
 func (s *NodeService) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpublishVolumeRequest) (res *csi.NodeUnpublishVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())
@@ -201,7 +202,7 @@ func (s *NodeService) NodeUnpublishVolume(ctx context.Context, req *csi.NodeUnpu
 }
 
 func (s *NodeService) NodeStageVolume(ctx context.Context, req *csi.NodeStageVolumeRequest) (res *csi.NodeStageVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())
@@ -249,7 +250,7 @@ func (s *NodeService) NodeStageVolume(ctx context.Context, req *csi.NodeStageVol
 }
 
 func (s *NodeService) NodeUnstageVolume(ctx context.Context, req *csi.NodeUnstageVolumeRequest) (res *csi.NodeUnstageVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())

@@ -12,6 +12,7 @@ import (
 	"github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/apis/peerpodvolume/v1alpha1"
 	peerpodvolumeV1alpha1 "github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/apis/peerpodvolume/v1alpha1"
 	peerpodvolume "github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/generated/peerpodvolume/clientset/versioned"
+	"github.com/confidential-containers/cloud-api-adaptor/volumes/csi-wrapper/pkg/utils"
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	uid "github.com/gofrs/uuid"
 	"github.com/golang/glog"
@@ -84,19 +85,18 @@ func (s *ControllerService) CreateVolume(ctx context.Context, req *csi.CreateVol
 		// Create PeerpodVolume CRD object only when peerpod parameter is found in request
 		if peerpod != "" {
 			volumeID := res.GetVolume().VolumeId
-			sanitizedVolumeID := strings.ReplaceAll(volumeID, "###", ".")
-			sanitizedVolumeID = strings.ReplaceAll(sanitizedVolumeID, "#", ".")
+			normalizedVolumeID := utils.NormalizeVolumeID(volumeID)
 			labels := map[string]string{
 				"volumeName": volumeName,
 			}
 			newPeerpodvolume := &v1alpha1.PeerpodVolume{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      sanitizedVolumeID,
+					Name:      normalizedVolumeID,
 					Namespace: s.Namespace,
 					Labels:    labels,
 				},
 				Spec: v1alpha1.PeerpodVolumeSpec{
-					VolumeID:   sanitizedVolumeID,
+					VolumeID:   normalizedVolumeID,
 					VolumeName: volumeName,
 				},
 			}
@@ -118,7 +118,7 @@ func (s *ControllerService) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 	if e := s.redirect(ctx, req, func(ctx context.Context, client csi.ControllerClient) {
 		res, err = client.DeleteVolume(ctx, req)
 
-		volumeID := req.GetVolumeId()
+		volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 		_, err = s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 		if err != nil {
 			glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())
@@ -138,7 +138,7 @@ func (s *ControllerService) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 }
 
 func (s *ControllerService) ControllerPublishVolume(ctx context.Context, req *csi.ControllerPublishVolumeRequest) (res *csi.ControllerPublishVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())
@@ -197,7 +197,7 @@ func (s *ControllerService) ControllerPublishVolume(ctx context.Context, req *cs
 }
 
 func (s *ControllerService) ControllerUnpublishVolume(ctx context.Context, req *csi.ControllerUnpublishVolumeRequest) (res *csi.ControllerUnpublishVolumeResponse, err error) {
-	volumeID := req.GetVolumeId()
+	volumeID := utils.NormalizeVolumeID(req.GetVolumeId())
 	savedPeerpodvolume, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).Get(context.Background(), volumeID, metav1.GetOptions{})
 	if err != nil {
 		glog.Infof("Not found PeerpodVolume with volumeID: %v, err: %v", volumeID, err.Error())

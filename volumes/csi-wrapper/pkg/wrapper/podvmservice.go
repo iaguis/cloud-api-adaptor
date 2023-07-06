@@ -136,7 +136,9 @@ func (s *PodVMNodeService) ReproduceNodeStageVolume(peerPodVolume *peerpodvolume
 	if err := (&jsonpb.Unmarshaler{}).Unmarshal(bytes.NewReader([]byte(wrapperRequest)), &modifiedRequest); err != nil {
 		glog.Errorf("Failed to convert to NodeStageVolumeRequest, err: %v", err.Error())
 	} else {
-		modifiedRequest.PublishContext["device-path"] = peerPodVolume.Spec.DevicePath
+		if modifiedRequest.PublishContext != nil {
+			modifiedRequest.PublishContext["device-path"] = peerPodVolume.Spec.DevicePath
+		}
 		glog.Infof("The modified NodeStageVolumeRequest is :%v", modifiedRequest)
 		ctx := context.Background()
 		count := 0

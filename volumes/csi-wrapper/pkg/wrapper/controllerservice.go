@@ -358,6 +358,27 @@ func (s *ControllerService) SyncHandler(peerPodVolume *peerpodvolumeV1alpha1.Pee
 	if peerPodVolume.Status.State == peerpodvolumeV1alpha1.PeerPodVSIIDReady && peerPodVolume.Spec.DevicePath == "" {
 		// After peerpod vsi id is ready in crd object, we can reproduce the ControllerPublishVolumeRequest
 		vsiID := peerPodVolume.Spec.VMID
+
+		// FIXME detect this?
+		attachRequired := false
+
+		// ControllerPublishVolume is never gonna be called because
+		// attachRequired is false, jump directly to the
+		// ControllerPublishVolumeApplied state
+		if !attachRequired {
+			// Jump directly to the final state: when volumes don't require
+			// attachment there's no Stage or Publish needed
+			peerPodVolume.Status = v1alpha1.PeerpodVolumeStatus{
+				State: v1alpha1.ControllerPublishVolumeApplied,
+			}
+			_, err := s.PeerpodvolumeClient.ConfidentialcontainersV1alpha1().PeerpodVolumes(s.Namespace).UpdateStatus(context.Background(), peerPodVolume, metav1.UpdateOptions{})
+			if err != nil {
+				glog.Errorf("Error happens while Update PeerpodVolume status to ControllerPublishVolumeApplied, err: %v", err.Error())
+			}
+
+			return
+		}
+
 		// Replace the nodeID with peerpod vsi instance id in ControllerPublishVolumeRequest and pass
 		// the modified ControllerPublishVolumeRequest to original controller service
 		wrapperRequest := peerPodVolume.Spec.WrapperControllerPublishVolumeReq
